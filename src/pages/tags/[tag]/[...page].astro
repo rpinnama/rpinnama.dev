@@ -6,21 +6,34 @@ import Layout from "@/layouts/Layout.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
 import Card from "@/components/Card.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
 import Pagination from "@/components/Pagination.astro";
-import getUniqueTags from "@/utils/getUniqueTags";
-import getPostsByTag from "@/utils/getPostsByTag";
+import { getCombinedTags } from "@/utils/getUniqueTags";
+import getItemsByTag from "@/utils/getItemsByTag";
 import { SITE } from "@/config";
+import { slugifyStr } from "@/utils/slugify";
 
 export async function getStaticPaths({ paginate }: GetStaticPathsOptions) {
   const posts = await getCollection("blog");
-  const tags = getUniqueTags(posts);
+  const projects = await getCollection("projects");
+  const tags = getCombinedTags(posts, projects);
 
   return tags.flatMap(({ tag, tagName }) => {
-    const tagPosts = getPostsByTag(posts, tag);
+    // Get both posts and projects with this tag
+    const taggedPosts = getItemsByTag(posts, tag);
+    const taggedProjects = getItemsByTag(projects, tag);
+    
+    // Combine them, with projects first (they'll have the #project tag)
+    const combinedItems = [...taggedProjects, ...taggedPosts];
+    
+    // Sort by date (newest first)
+    const sortedItems = combinedItems.sort(
+      (a, b) => new Date(b.data.pubDatetime).valueOf() - new Date(a.data.pubDatetime).valueOf()
+    );
 
-    return paginate(tagPosts, {
+    return paginate(sortedItems, {
       params: { tag },
-      props: { tagName },
+      props: { tagName, isProjectTag: tag === slugifyStr("project") },
       pageSize: SITE.postPerPage,
     });
   });
@@ -36,15 +49,24 @@ const { page, tagName } = Astro.props;
   <Main
     pageTitle={[`Tag:`, `${tagName}`]}
     titleTransition={tag}
-    pageDesc={`All the articles with the tag "${tagName}".`}
+    pageDesc={`All content with the tag "${tagName}".`}
   >
     <h1 slot="title" transition:name={tag}>{`Tag:${tag}`}</h1>
+    
+    {/* Display different views based on content type */}
     <ul>
-      {page.data.map(data => <Card {...data} />)}
+      {page.data.map(item => {
+        // Check if this is a project by looking at the collection property
+        const isProject = 'collection' in item && item.collection === 'projects';
+        
+        return isProject ? 
+          <ProjectCard {...item} /> : 
+          <Card {...item} />;
+      })}
     </ul>
   </Main>
 
-  <Pagination {page} />
+  <Pagination page={page} />
 
   <Footer noMarginTop={page.lastPage > 1} />
 </Layout>

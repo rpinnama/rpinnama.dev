@@ -1,0 +1,97 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection } from "astro:content";
+import Main from "@/layouts/Main.astro";
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+import Pagination from "@/components/Pagination.astro";
+import ProjectViewToggle from "@/components/ProjectViewToggle.astro";
+import ProjectCard from "@/components/ProjectCard.astro";
+import getSortedPosts from "@/utils/getSortedPosts";
+import { SITE } from "@/config";
+
+export const getStaticPaths = (async ({ paginate }) => {
+  const projects = await getCollection("projects", ({ data }) => !data.draft);
+  return paginate(getSortedPosts(projects), { pageSize: SITE.postPerPage });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+
+// We'll set a default view and use client-side JS to update it
+const defaultView = "list";
+---
+
+<Layout title={`Projects | ${SITE.title}`}>
+  <Header />
+  <Main pageTitle="Projects" pageDesc="All the projects I've worked on.">
+    <div class="flex justify-end mb-4">
+      <ProjectViewToggle currentView={defaultView} />
+    </div>
+    
+    <ul id="project-list-view" class="">
+      {page.data.map(project => <ProjectCard {...project} />)}
+    </ul>
+    
+    <div id="project-grid-view" class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 hidden">
+      {page.data.map(project => <ProjectCard {...project} />)}
+    </div>
+    
+    <script>
+      // Client-side code to handle view toggling
+      document.addEventListener('DOMContentLoaded', () => {
+        const listView = document.getElementById('project-list-view');
+        const gridView = document.getElementById('project-grid-view');
+        const listButton = document.getElementById('list-button');
+        const gridButton = document.getElementById('grid-button');
+        
+        // Check localStorage for saved preference
+        const savedView = localStorage.getItem('projectView') || 'list';
+        
+        // Function to update the view
+        const updateView = (view: string): void => {
+          if (!listView || !gridView) return;
+          
+          if (view === 'grid') {
+            listView.classList.add('hidden');
+            gridView.classList.remove('hidden');
+            listButton?.classList.remove('bg-skin-accent', 'text-white');
+            gridButton?.classList.add('bg-skin-accent', 'text-white');
+          } else {
+            gridView.classList.add('hidden');
+            listView.classList.remove('hidden');
+            gridButton?.classList.remove('bg-skin-accent', 'text-white');
+            listButton?.classList.add('bg-skin-accent', 'text-white');
+          }
+          localStorage.setItem('projectView', view);
+        };
+        
+        // Set initial view based on saved preference
+        updateView(savedView);
+        
+        // Add click event listeners to toggle buttons
+        listButton?.addEventListener('click', () => updateView('list'));
+        gridButton?.addEventListener('click', () => updateView('grid'));
+      });
+    </script>
+  </Main>
+
+  <Pagination page={page} />
+
+  <Footer noMarginTop={page.lastPage > 1} />
+</Layout>
+
+<script>
+  // Handle view toggle
+  document.addEventListener('astro:page-load', () => {
+    const toggleButtons = document.querySelectorAll('[data-view-toggle]');
+    
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const view = button.getAttribute('data-view');
+        document.cookie = `projectView=${view}; path=/; max-age=31536000`; // 1 year
+        window.location.reload();
+      });
+    });
+  });
+</script>

@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from "astro:content";
+import Datetime from "./Datetime.astro";
+import { slugifyStr } from "@/utils/slugify";
+
+type Props = CollectionEntry<"projects">;
+
+const { data, id } = Astro.props;
+const { title, description, pubDatetime, modDatetime, timezone, thumbnail } = data;
+
+const href = `/projects/${id}/`;
+---
+
+<li class="my-6">
+  <a
+    href={href}
+    class="group flex flex-col overflow-hidden rounded-lg border border-muted bg-card shadow-sm transition-all duration-200 hover:shadow-md"
+  >
+    {thumbnail && (
+      <div class="aspect-video w-full overflow-hidden">
+        <img
+          src={typeof thumbnail === "string" ? thumbnail : thumbnail.src}
+          alt={`Thumbnail for ${title}`}
+          class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+        />
+      </div>
+    )}
+    <div class="flex flex-grow flex-col gap-2 p-4">
+      <h3
+        transition:name={slugifyStr(title)}
+        class="text-xl font-medium text-accent decoration-dashed underline-offset-4 group-hover:underline"
+      >
+        {title}
+      </h3>
+      <Datetime {pubDatetime} {modDatetime} {timezone} />
+      <p class="line-clamp-3 text-sm">{description}</p>
+    </div>
+  </a>
+</li>
