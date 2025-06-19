@@ -1,5 +1,3 @@
-import type { CollectionEntry } from "astro:content";
-
 // Define a generic type for content items that have the necessary properties
 interface ContentItem {
   data: {

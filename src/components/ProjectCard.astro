@@ -7,9 +7,8 @@ import { Image } from "astro:assets";
 // Import project thumbnails directly
 import sampleThumbnail from "@/assets/images/sample-project-thumbnail.png";
 import astroPaperV3 from "@/assets/images/AstroPaper-v3.png";
-import astroPaperV4 from "@/assets/images/AstroPaper-v4.png";
 import astroPaperV5 from "@/assets/images/AstroPaper-v5.png";
-import forrestGumpQuote from "@/assets/images/forrest-gump-quote.png";
+// Remove unused imports to fix warnings
 
 type Props = CollectionEntry<"projects">;
 
@@ -19,14 +18,14 @@ const { title, description, pubDatetime, modDatetime, timezone, thumbnail } = da
 const href = `/projects/${id}/`;
 
 // Map project IDs to their respective thumbnails
-const thumbnailMap = {
+const thumbnailMap: Record<string, ImageMetadata> = {
   "sample-project": sampleThumbnail,
   "portfolio-website": astroPaperV3,
   "creating-projects-guide": astroPaperV5,
 };
 
 // Get the appropriate thumbnail for this project
-const projectThumbnail = thumbnailMap[id];
+const projectThumbnail = id in thumbnailMap ? thumbnailMap[id] : undefined;
 ---
 
 <li class="my-6">
@@ -42,7 +41,7 @@ const projectThumbnail = thumbnailMap[id];
           class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
           loading="lazy"
         />
-      ) : thumbnail && (
+      ) : thumbnail && typeof thumbnail === 'string' && (
         <img
           src={thumbnail}
           alt={`Thumbnail for ${title}`}

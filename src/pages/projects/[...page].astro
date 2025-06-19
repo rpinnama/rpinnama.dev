@@ -48,10 +48,10 @@ const defaultView = "list";
         if (!listView || !gridView || !listButton || !gridButton) return;
         
         // Check localStorage for saved preference
-        const savedView = localStorage.getItem('projectView') || 'list';
+        const savedView = localStorage.getItem('projectView') as 'list' | 'grid' || 'list';
         
         // Function to update the view
-        const updateView = (view) => {
+        const updateView = (view: 'list' | 'grid') => {
           if (view === 'grid') {
             listView.classList.add('hidden');
             gridView.classList.remove('hidden');

@@ -1,4 +1,3 @@
-import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "./slugify";
 
 // Define a generic type for content items that have the necessary properties
