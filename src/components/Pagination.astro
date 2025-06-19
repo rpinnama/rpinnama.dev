@@ -5,8 +5,11 @@ import IconArrowLeft from "@/assets/icons/IconArrowLeft.svg";
 import IconArrowRight from "@/assets/icons/IconArrowRight.svg";
 import LinkButton from "./LinkButton.astro";
 
+// Define a generic content item type
+type ContentItem = CollectionEntry<"blog"> | CollectionEntry<"projects">;
+
 export interface Props {
-  page: Page<CollectionEntry<"blog">>;
+  page: Page<ContentItem>;
 }
 
 const { page } = Astro.props;

@@ -5,12 +5,14 @@ import Layout from "@/layouts/Layout.astro";
 import Tag from "@/components/Tag.astro";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
-import getUniqueTags from "@/utils/getUniqueTags";
+import { getCombinedTags } from "@/utils/getUniqueTags";
 import { SITE } from "@/config";
 
 const posts = await getCollection("blog");
+const projects = await getCollection("projects");
 
-let tags = getUniqueTags(posts);
+// Get combined tags from both posts and projects
+let tags = getCombinedTags(posts, projects);
 ---
 
 <Layout title={`Tags | ${SITE.title}`}>

@@ -41,9 +41,10 @@ export default defineConfig({
     },
   },
   image: {
-    // Used for all Markdown images; not configurable per-image
-    // Used for all `<Image />` and `<Picture />` components unless overridden with a prop
-    experimentalLayout: "constrained",
+    // Use a simple passthrough service instead of Sharp
+    service: {
+      entrypoint: 'astro/assets/services/noop'
+    },
   },
   env: {
     schema: {
@@ -54,8 +55,6 @@ export default defineConfig({
       }),
     },
   },
-  experimental: {
-    responsiveImages: true,
-    preserveScriptOrder: true,
-  },
+  // Removed outdated experimental flags
+  // Check https://docs.astro.build/en/reference/experimental-flags/ for current flags
 });
