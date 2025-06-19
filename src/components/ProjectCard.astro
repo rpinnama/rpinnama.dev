@@ -2,6 +2,10 @@
 import type { CollectionEntry } from "astro:content";
 import Datetime from "./Datetime.astro";
 import { slugifyStr } from "@/utils/slugify";
+import { Image } from "astro:assets";
+
+// Import the sample project thumbnail directly
+import sampleThumbnail from "@/assets/images/sample-project-thumbnail.png";
 
 type Props = CollectionEntry<"projects">;
 
@@ -9,6 +13,9 @@ const { data, id } = Astro.props;
 const { title, description, pubDatetime, modDatetime, timezone, thumbnail } = data;
 
 const href = `/projects/${id}/`;
+
+// Determine if this is the sample project
+const isSampleProject = id === "sample-project";
 ---
 
 <li class="my-6">
@@ -16,15 +23,23 @@ const href = `/projects/${id}/`;
     href={href}
     class="group flex flex-col overflow-hidden rounded-lg border border-muted bg-card shadow-sm transition-all duration-200 hover:shadow-md"
   >
-    {thumbnail && (
-      <div class="aspect-video w-full overflow-hidden">
-        <img
-          src={typeof thumbnail === "string" ? thumbnail : thumbnail.src}
+    <div class="aspect-video w-full overflow-hidden">
+      {isSampleProject ? (
+        <Image
+          src={sampleThumbnail}
           alt={`Thumbnail for ${title}`}
           class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+          loading="lazy"
         />
-      </div>
-    )}
+      ) : thumbnail && (
+        <img
+          src={thumbnail}
+          alt={`Thumbnail for ${title}`}
+          class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+          loading="lazy"
+        />
+      )}
+    </div>
     <div class="flex flex-grow flex-col gap-2 p-4">
       <h3
         transition:name={slugifyStr(title)}

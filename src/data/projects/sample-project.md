@@ -7,7 +7,7 @@ tags:
   - project
   - web
   - sample
-thumbnail: https://via.placeholder.com/800x400?text=Sample+Project
+thumbnail: ../../assets/images/sample-project-thumbnail.png
 ---
 
 # Sample Project
