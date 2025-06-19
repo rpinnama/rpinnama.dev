@@ -4,8 +4,12 @@ import Datetime from "./Datetime.astro";
 import { slugifyStr } from "@/utils/slugify";
 import { Image } from "astro:assets";
 
-// Import the sample project thumbnail directly
+// Import project thumbnails directly
 import sampleThumbnail from "@/assets/images/sample-project-thumbnail.png";
+import astroPaperV3 from "@/assets/images/AstroPaper-v3.png";
+import astroPaperV4 from "@/assets/images/AstroPaper-v4.png";
+import astroPaperV5 from "@/assets/images/AstroPaper-v5.png";
+import forrestGumpQuote from "@/assets/images/forrest-gump-quote.png";
 
 type Props = CollectionEntry<"projects">;
 
@@ -14,8 +18,15 @@ const { title, description, pubDatetime, modDatetime, timezone, thumbnail } = da
 
 const href = `/projects/${id}/`;
 
-// Determine if this is the sample project
-const isSampleProject = id === "sample-project";
+// Map project IDs to their respective thumbnails
+const thumbnailMap = {
+  "sample-project": sampleThumbnail,
+  "portfolio-website": astroPaperV3,
+  "creating-projects-guide": astroPaperV5,
+};
+
+// Get the appropriate thumbnail for this project
+const projectThumbnail = thumbnailMap[id];
 ---
 
 <li class="my-6">
@@ -24,9 +35,9 @@ const isSampleProject = id === "sample-project";
     class="group flex flex-col overflow-hidden rounded-lg border border-muted bg-card shadow-sm transition-all duration-200 hover:shadow-md"
   >
     <div class="aspect-video w-full overflow-hidden">
-      {isSampleProject ? (
+      {projectThumbnail ? (
         <Image
-          src={sampleThumbnail}
+          src={projectThumbnail}
           alt={`Thumbnail for ${title}`}
           class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
           loading="lazy"

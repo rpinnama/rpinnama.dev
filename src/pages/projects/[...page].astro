@@ -38,30 +38,34 @@ const defaultView = "list";
     </div>
     
     <script>
-      // Client-side code to handle view toggling
-      document.addEventListener('DOMContentLoaded', () => {
+      // Function to initialize view toggle
+      function initViewToggle() {
         const listView = document.getElementById('project-list-view');
         const gridView = document.getElementById('project-grid-view');
         const listButton = document.getElementById('list-button');
         const gridButton = document.getElementById('grid-button');
         
+        if (!listView || !gridView || !listButton || !gridButton) return;
+        
         // Check localStorage for saved preference
         const savedView = localStorage.getItem('projectView') || 'list';
         
         // Function to update the view
-        const updateView = (view: string): void => {
-          if (!listView || !gridView) return;
-          
+        const updateView = (view) => {
           if (view === 'grid') {
             listView.classList.add('hidden');
             gridView.classList.remove('hidden');
-            listButton?.classList.remove('bg-skin-accent', 'text-white');
-            gridButton?.classList.add('bg-skin-accent', 'text-white');
+            listButton.classList.remove('bg-accent', 'text-white');
+            listButton.classList.add('hover:bg-muted/50');
+            gridButton.classList.add('bg-accent', 'text-white');
+            gridButton.classList.remove('hover:bg-muted/50');
           } else {
             gridView.classList.add('hidden');
             listView.classList.remove('hidden');
-            gridButton?.classList.remove('bg-skin-accent', 'text-white');
-            listButton?.classList.add('bg-skin-accent', 'text-white');
+            gridButton.classList.remove('bg-accent', 'text-white');
+            gridButton.classList.add('hover:bg-muted/50');
+            listButton.classList.add('bg-accent', 'text-white');
+            listButton.classList.remove('hover:bg-muted/50');
           }
           localStorage.setItem('projectView', view);
         };
@@ -70,9 +74,15 @@ const defaultView = "list";
         updateView(savedView);
         
         // Add click event listeners to toggle buttons
-        listButton?.addEventListener('click', () => updateView('list'));
-        gridButton?.addEventListener('click', () => updateView('grid'));
-      });
+        listButton.addEventListener('click', () => updateView('list'));
+        gridButton.addEventListener('click', () => updateView('grid'));
+      }
+      
+      // Initialize on DOMContentLoaded
+      document.addEventListener('DOMContentLoaded', initViewToggle);
+      
+      // Also initialize on Astro's page navigation events
+      document.addEventListener('astro:page-load', initViewToggle);
     </script>
   </Main>
 
@@ -81,17 +91,4 @@ const defaultView = "list";
   <Footer noMarginTop={page.lastPage > 1} />
 </Layout>
 
-<script>
-  // Handle view toggle
-  document.addEventListener('astro:page-load', () => {
-    const toggleButtons = document.querySelectorAll('[data-view-toggle]');
-    
-    toggleButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const view = button.getAttribute('data-view');
-        document.cookie = `projectView=${view}; path=/; max-age=31536000`; // 1 year
-        window.location.reload();
-      });
-    });
-  });
-</script>
+<!-- View toggle is now handled by the inline script above -->
